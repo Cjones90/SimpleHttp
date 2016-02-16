@@ -1,7 +1,7 @@
-<h4> Created in a few hours and a work in progress
+<h4> Created in a few hours and a work in progress </h4>
 
 
-<h3>Basic usage will look like the following:
+<h3>Basic usage will look like the following: </h3>
 
 
 In your server.js file
