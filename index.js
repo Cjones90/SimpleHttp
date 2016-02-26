@@ -9,9 +9,9 @@ const path = require('path');
 module.exports = {
 
   port: '',
-  toFileProp : {"/favicon.ico": "favicon.ico"},
-  toDirProp : {},
-  toFunctionProp : {},
+  toFileProp : [["/favicon.ico", "favicon.ico"]],
+  toDirProp : [],
+  toFunctionProp : [],
 
 
   // TODO: Implement good error catching/error msgs, parameter checking
@@ -29,40 +29,39 @@ module.exports = {
   },
 
   univRouter: function (req, res) {
-    let file = '';
+    let path = '';
+    let dir = '';
     let parsedUrl = url.parse(req.url).pathname;
 
-    file = this.toFileProp[parsedUrl] ? this.toFileProp[parsedUrl] : file;
-    file = this.toDirProp[parsedUrl] ? this.toDirProp[parsedUrl] : file;
+    if(this.toDirProp.length) {
+        let splitUrl = parsedUrl.split('/');
+        splitUrl.forEach((urlDir) => {
+            let tmpDir = "/"+urlDir;
+            this.toDirProp.forEach((dirArr) => {
+                if(tmpDir.indexOf(dirArr[0]) > -1) {
+                    dir += dirArr[1]
+                }
+            })
+        })
+    }
+
+    if(this.toFileProp.length) {
+        this.toFileProp.forEach((fileArr) => {
+            if(parsedUrl.indexOf(fileArr[0]) > -1) {
+                path = fileArr[1]
+            }
+        })
+    }
+
+    let file = dir + path;
+    if(parsedUrl === "/") file = "index1.html";
 
     // TODO:Implement easy routing to function and returning intended response
     // file = toFunctionProp[parsedUrl] ? toFunctionProp[parsedUrl] : file;
-    // TODO: Set a default path
 
     let contentType = this.extractContentType(file)
     res.writeHead(200, {"Content-Type": contentType});
     res.end(fs.readFileSync(file));
-  },
-
-  routePath: function(urlPath) {
-    this.urlPath = urlPath;
-    return this;
-  },
-
-  toFile: function(filePath) {
-    if(!this.urlPath) { this.errorReporter(2); }
-    this.toFileProp[this.urlPath] = filePath;
-    delete this.urlPath;
-  },
-
-  toDir: function(dirPath) {
-    if(!this.urlPath) { this.errorReporter(2); }
-    this.toDirProp[this.urlPath] = dirPath;
-    delete this.urlPath;
-  },
-
-  toFunction: function() {
-
   },
 
   extractContentType: function (filePath) {
@@ -83,9 +82,31 @@ module.exports = {
       case ".ico": contentType = "image/x-icon";
       break;
       default: contentType = "text/html";
-		}
+      }
     return contentType;
   },
+
+  routePath: function(urlPath) {
+    this.urlPath = urlPath;
+    return this;
+  },
+
+  toFile: function(filePath) {
+    if(!this.urlPath) { this.errorReporter(2); }
+    this.toFileProp.push(["/"+this.urlPath, filePath]);
+    delete this.urlPath;
+  },
+
+  toDir: function(dirPath) {
+    if(!this.urlPath) { this.errorReporter(2); }
+    this.toDirProp.push(["/"+this.urlPath, dirPath+"/"]);
+    delete this.urlPath;
+  },
+
+  toFunction: function() {
+
+  },
+
 
   routeExt: function (extName) {
     // TODO: Implement a catchall for specific extensions
@@ -103,7 +124,7 @@ module.exports = {
       case 1: errMsg = "Specify a port using .listenToPort(portNum) before calling "+
                         ".startServer()";
       break;
-      case 2: errMsg = `Use .toFile() in the form of .routeFrom(urlPathName).toFile(fileName)`;
+      case 2: errMsg = `Use .toFile() and .toDir() in the form of .routeFrom(urlPathName).toFile(fileName) or .toDir(dirName)`;
       break;
       default: errMsg = "Please raise an issue to the maintainer for quickhttp"+
                         "with as much detail as possible.";
