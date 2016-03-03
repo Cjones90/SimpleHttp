@@ -94,7 +94,7 @@ module.exports = {
   },
 
   setPublicFolder: function(root) {
-    this.pubFolder = root+"/";
+    this.pubFolder = path.resolve(root)+"/";
     console.log("Serving from: ", this.pubFolder);
   },
 
