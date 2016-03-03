@@ -8,6 +8,7 @@ const path = require('path');
 
 module.exports = {
 
+  root: '',
   port: '',
   toFileProp : [["/favicon.ico", "favicon.ico"]],
   toDirProp : [],
@@ -54,7 +55,10 @@ module.exports = {
     }
 
     let file = dir + path;
-    if(parsedUrl === "/") file = "index1.html";
+    if(parsedUrl === "/") {
+      if(!this.root) { this.errorReporter(4) }
+      file = this.root;
+    };
 
     // TODO:Implement easy routing to function and returning intended response
     // file = toFunctionProp[parsedUrl] ? toFunctionProp[parsedUrl] : file;
@@ -84,6 +88,17 @@ module.exports = {
       default: contentType = "text/html";
       }
     return contentType;
+  },
+
+  setPublicFolder: function(root) {
+    this.root = root+"/";
+    console.log("Serving from: ", this.root);
+  },
+
+  setDefaultPage: function(page) {
+    if(!this.root) { this.errorReporter(3) }
+    this.root += page;
+    console.log("Default page: ", this.root);
   },
 
   routePath: function(urlPath) {
@@ -125,6 +140,10 @@ module.exports = {
                         ".startServer()";
       break;
       case 2: errMsg = `Use .toFile() and .toDir() in the form of .routeFrom(urlPathName).toFile(fileName) or .toDir(dirName)`;
+      break;
+      case 3: errMsg = `Please set a default folder to serve from by using .setPublicFolder(somePublicFolder) before calling .setDefaultPage()`;
+      break;
+      case 4: errMsg = `Please set a default folder to serve from by using .setPublicFolder(somePublicFolder)`;
       break;
       default: errMsg = "Please raise an issue to the maintainer for quickhttp"+
                         "with as much detail as possible.";
