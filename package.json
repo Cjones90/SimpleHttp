@@ -1,6 +1,6 @@
 {
-  "name": "Simple Http",
-  "main": "shttp",
+  "name": "shttp",
+  "main": "index.js",
   "author": "Casey Jones",
   "version":"0.1",
   "repository": {
