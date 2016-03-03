@@ -5,7 +5,7 @@ const shttp = require('./index.js');
 shttp.listenToPort(6111);
 
 shttp.setPublicFolder(__dirname);
-shttp.setDefaultPage('index1.html')
+shttp.setDefaultPage('index1.html');
 // Order does not matter, as long as the whole directory structure is there when initialized
 // ie,
 // shttp.routePath('datInner1').toDir('inner1');

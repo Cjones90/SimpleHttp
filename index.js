@@ -8,7 +8,8 @@ const path = require('path');
 
 module.exports = {
 
-  root: '',
+  pubFolder: '',
+  defaultPage: '',
   port: '',
   toFileProp : [["/favicon.ico", "favicon.ico"]],
   toDirProp : [],
@@ -20,6 +21,8 @@ module.exports = {
 
   startServer: function() {
     if(!this.port) { this.errorReporter(1) }
+    if(!this.defaultPage) { this.errorReporter(3) }
+    if(!this.pubFolder) { this.errorReporter(3) }
     http.createServer((req, res) => {
       this.univRouter(req, res);
     }).listen(this.port, console.log(`Listening to port: ${this.port}`))
@@ -54,10 +57,10 @@ module.exports = {
         })
     }
 
-    let file = dir + path;
+
+    let file = this.pubFolder + dir + path;
     if(parsedUrl === "/") {
-      if(!this.root) { this.errorReporter(4) }
-      file = this.root;
+      file = this.defaultPage;
     };
 
     // TODO:Implement easy routing to function and returning intended response
@@ -91,14 +94,14 @@ module.exports = {
   },
 
   setPublicFolder: function(root) {
-    this.root = root+"/";
-    console.log("Serving from: ", this.root);
+    this.pubFolder = root+"/";
+    console.log("Serving from: ", this.pubFolder);
   },
 
   setDefaultPage: function(page) {
-    if(!this.root) { this.errorReporter(3) }
-    this.root += page;
-    console.log("Default page: ", this.root);
+    if(!this.pubFolder) { this.errorReporter(3) }
+    this.defaultPage = this.pubFolder+page;
+    console.log("Default page: ", this.defaultPage);
   },
 
   routePath: function(urlPath) {
@@ -141,10 +144,9 @@ module.exports = {
       break;
       case 2: errMsg = `Use .toFile() and .toDir() in the form of .routeFrom(urlPathName).toFile(fileName) or .toDir(dirName)`;
       break;
-      case 3: errMsg = `Please set a default folder to serve from by using .setPublicFolder(somePublicFolder) before calling .setDefaultPage()`;
+      case 3: errMsg = `Please set a default folder and page to serve by using .setPublicFolder(somePublicFolder) then calling .setDefaultPage(someDefaultPage)`;
       break;
-      case 4: errMsg = `Please set a default folder to serve from by using .setPublicFolder(somePublicFolder)`;
-      break;
+
       default: errMsg = "Please raise an issue to the maintainer for quickhttp"+
                         "with as much detail as possible.";
     }
