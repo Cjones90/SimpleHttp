@@ -45,4 +45,8 @@ shttp.routePath('test').toFile('index1.html');
 shttp.routePath('test2').toFile('index2.html');
 
 
+shttp.routeExt('.js').toDir('dir1/dir3/assets/js');
+shttp.routeExt('.jpg').toDir('dir1/dir3/assets');
+
+
 shttp.startServer();

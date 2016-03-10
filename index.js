@@ -14,6 +14,7 @@ module.exports = {
   toFileProp : [["/favicon.ico", "favicon.ico"]],
   toDirProp : [],
   toFunctionProp : [],
+  extPath: [],
 
 
   // TODO: Implement good error catching/error msgs, parameter checking
@@ -35,7 +36,21 @@ module.exports = {
   univRouter: function (req, res) {
     let path = '';
     let dir = '';
+    let extDir = ''
     let parsedUrl = url.parse(req.url).pathname;
+
+    if(this.extPath.length) {
+        let splitUrl = parsedUrl.split('/');
+        splitUrl.forEach((urlDir) => {
+            let tmpDir = "/"+urlDir;
+            this.extPath.forEach((extArr) => {
+                if(tmpDir.indexOf(extArr[0]) > -1) {
+                    extDir = extArr[1]
+                }
+            })
+        })
+        path = splitUrl[splitUrl.length-1];
+    }
 
     if(this.toDirProp.length) {
         let splitUrl = parsedUrl.split('/');
@@ -49,16 +64,19 @@ module.exports = {
         })
     }
 
+
     if(this.toFileProp.length) {
         this.toFileProp.forEach((fileArr) => {
             if(parsedUrl.indexOf(fileArr[0]) > -1) {
+                extDir = '';
                 path = fileArr[1]
             }
         })
     }
 
 
-    let file = this.pubFolder + dir + path;
+    let file = this.pubFolder + (extDir?extDir:dir) + path;
+
     if(parsedUrl === "/") {
       file = this.defaultPage;
     };
@@ -109,6 +127,11 @@ module.exports = {
     return this;
   },
 
+  routeExt: function (extName) {
+    this.extName = extName;
+    return this;
+  },
+
   toFile: function(filePath) {
     if(!this.urlPath) { this.errorReporter(2); }
     this.toFileProp.push(["/"+this.urlPath, filePath]);
@@ -116,8 +139,9 @@ module.exports = {
   },
 
   toDir: function(dirPath) {
-    if(!this.urlPath) { this.errorReporter(2); }
-    this.toDirProp.push(["/"+this.urlPath, dirPath+"/"]);
+    if(!this.urlPath && !this.extName) { this.errorReporter(2); }
+    this.urlPath && this.toDirProp.push(["/"+this.urlPath, dirPath+"/"]);
+    this.extName && this.extPath.push([this.extName, dirPath+"/"]);
     delete this.urlPath;
   },
 
@@ -125,16 +149,6 @@ module.exports = {
 
   },
 
-
-  routeExt: function (extName) {
-    // TODO: Implement a catchall for specific extensions
-    // Most likely .routeExt().toDir() is the best way to implement
-    // Need to brainstorm good uses for routeExt() and toDir()
-    //    -- One is assets such as .jpg, .pdf, .doc
-    return "Function incomplete"
-    this.extName = extName;
-    return this;
-  },
 
   errorReporter: function(errNum) {
     let errMsg = ''
@@ -147,7 +161,7 @@ module.exports = {
       case 3: errMsg = `Please set a default folder and page to serve by using .setPublicFolder(somePublicFolder) then calling .setDefaultPage(someDefaultPage)`;
       break;
 
-      default: errMsg = "Please raise an issue to the maintainer for quickhttp"+
+      default: errMsg = "Please raise an issue to the maintainer for simplehttp"+
                         "with as much detail as possible.";
     }
     throw new Error(errMsg);

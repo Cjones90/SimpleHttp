@@ -35,9 +35,13 @@ shttp.routePath('dir3').toDir('dir3');
 // shttp.routePath('images').toDir('dir/with/images');
 // shttp.routePath('css').toDir('dir/with/cssfiles');
 
+// Set default routes for all files with certain extensions
+// Be sure to add the file in rouetPath().toFile() if you wish
+//  to avoid the behavior for specific files
+shttp.routeExt('.js').toDir('dir1/dir3/assets/js');
+shttp.routeExt('.jpg').toDir('dir1/dir3/assets');
 
 // (Not implemented yet)
-shttp.routeExt('.jpg').toDir('/assets');
 shttp.routePath('/ajaxCall').toFunction(myCustomFunction);
 
 
